@@ -44,4 +44,34 @@ describe("GET /api", () => {
     });
   });
 });
+describe("GET /api/articles/:article_id", () => {
+  test("should return an object", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then((response) => {
+        expect(typeof response.body).toBe("object");
+      });
+  });
+  test("should return correct values on object corresponding to requested article by id", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article_id).toBe(3);
+        expect(response.body.topic).toBe("mitch");
+        expect(response.body.author).toBe("icellusedkars");
+      });
+  });
+  test("should return a custom error message if article does not exist", () => {
+    return request(app)
+      .get("/api/articles/99999")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article does not exist");
+      });
+  });
+});
+
+
 
