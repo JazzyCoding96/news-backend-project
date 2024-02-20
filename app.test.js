@@ -32,6 +32,7 @@ describe("GET /api/topics", () => {
     return request(app).get("/api/notAtopic").expect(404);
   });
 });
+
 describe("GET /api", () => {
   test("should respond with an object describing all available endpoints", () => {
     return fs.readFile("endpoints.json", "utf8").then((endpointsData) => {
@@ -44,6 +45,7 @@ describe("GET /api", () => {
     });
   });
 });
+
 describe("GET /api/articles/:article_id", () => {
   test("should return an object", () => {
     return request(app)
@@ -58,9 +60,9 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/3")
       .expect(200)
       .then((response) => {
-        expect(response.body.article_id).toBe(3);
-        expect(response.body.topic).toBe("mitch");
-        expect(response.body.author).toBe("icellusedkars");
+        expect(response.body.article.article_id).toBe(3);
+        expect(response.body.article.topic).toBe("mitch");
+        expect(response.body.article.author).toBe("icellusedkars");
       });
   });
   test("should return a custom error message if article does not exist", () => {
@@ -72,14 +74,15 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 });
+
 describe("GET /api/articles", () => {
   test("should respond with an array of all article objects that include column comment_count", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
       .then((response) => {
-        console.log(response.body[0]);
-        response.body.forEach((article) => {
+        
+        response.body.articles.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
             title: expect.any(String),
@@ -88,7 +91,7 @@ describe("GET /api/articles", () => {
             created_at: expect.any(String),
             votes: expect.any(Number),
             article_img_url: expect.any(String),
-            comment_count: expect.any(Number),
+            comment_count: expect.any(String),
           });
         });
       });
@@ -97,24 +100,91 @@ describe("GET /api/articles", () => {
     return request(app).get("/api/arcwtles").expect(404);
   });
 });
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("should respond with an array of comments", () => {
     return request(app)
       .get("/api/articles/3/comments")
       .expect(200)
       .then((response) => {
-        expect(response.body.length).toBe(2);
+        expect(response.body.comments.length).toBe(2);
       });
   });
-  test("should respond with a 404 and a custom error message if article id requested does not exist", () => {
+  test('should respond with a 200 if an article exists but there are no comments. Returns an empty array.', () => {
+    return request(app).get("/api/articles/2/comments").expect(200).then((response) => {
+        expect(response.body.comments.length).toBe(0) 
+    })
+  });
+  test('should respond with a 400 if article_id is not a valid data type', () => {
+    return request(app).get("/api/articles/notValidDataType/comments").expect(400).then((response) => {
+        expect(response.body.msg).toBe("Invalid article");
+    })
+  });
+  test("should respond with a 400 and a custom error message if article id requested does not exist", () => {
     return request(app)
       .get("/api/articles/9999/comments")
-      .expect(404)
+      .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("Article does not exist");
       });
   });
 });
 
-/** */
+describe("POST /api/articles/:article_id/comments", () => {
+  test("should respond with successfully inserted comment on a specified article", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "test example body",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then((response) => {
+        expect(response.body.comment).toHaveProperty("comment_id");
+        expect(response.body.comment).toHaveProperty(
+          "author",
+          newComment.username
+        );
+        expect(response.body.comment).toHaveProperty("body", newComment.body);
+      });
+  });
+  test("should respond with a 400 if either username or body are empty values", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Username and body are required fields");
+      });
+  });
+  test("should respond with a 400 if username does not exist", () => {
+    const newComment = {
+      username: "invalidUsername",
+      body: "comment to add",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe(
+          "Username 'invalidUsername' does not exist"
+        );
+      });
+  });
+});
+
+/*POST /api/articles/:article_id/comments
+Consider what errors could occur with this endpoint, and make sure to test for them.
+
+Remember to add a description of this endpoint to your /api endpoint.
+*/
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const { getAllTopics } = require('./controllers/topics');
 const { getEndpoints } = require('./controllers/endpoint');
-const { getArticleById, getAllArticles, getAllComments } = require('./controllers/article');
+const { getArticleById, getAllArticles, getAllComments, addComment } = require('./controllers/article');
 const app = express()
 
 
@@ -17,13 +17,15 @@ app.get("/api/articles/", getAllArticles)
 
 app.get("/api/articles/:article_id/comments", getAllComments)
 
+app.post("/api/articles/:article_id/comments", addComment)
+
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
   }
   
-  res.status(404).send();
+  res.status(400).send();
 });
 
 // Error handling middleware
@@ -35,5 +37,7 @@ module.exports = app;
 
 
 /*
+
+Consider what errors could occur with this endpoint, and make sure to test for them.
 
 Remember to add a description of this endpoint to your /api endpoint.*/
