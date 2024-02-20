@@ -1,4 +1,4 @@
-const { selectArticleById } = require("../models/article")
+const { selectArticleById, fetchAllArticles } = require("../models/article")
 
 
 exports.getArticleById = (req, res, next) => {
@@ -9,4 +9,12 @@ exports.getArticleById = (req, res, next) => {
     }).catch((err) => {
         next(err)
     })
+}
+//controller needs changing, just done this to get result in model with test
+exports.getAllArticles = (req, res, next) => {
+
+    fetchAllArticles().then((articles) => {
+        res.status(200).send(articles)
+    })
+
 }

@@ -1,7 +1,7 @@
 const express = require('express');
 const { getAllTopics } = require('./controllers/topics');
 const { getEndpoints } = require('./controllers/endpoint');
-const { getArticleById } = require('./controllers/article');
+const { getArticleById, getAllArticles } = require('./controllers/article');
 const app = express()
 
 
@@ -12,6 +12,9 @@ app.get("/api/topics", getAllTopics);
 app.get("/api", getEndpoints)
 
 app.get("/api/articles/:article_id", getArticleById)
+
+app.get("/api/articles/", getAllArticles)
+
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
@@ -29,6 +32,6 @@ app.use((err, req, res, next) => {
 module.exports = app;
 
 
+/*
 
-
-/**/
+Remember to add a description of this endpoint to your /api endpoint.*/
