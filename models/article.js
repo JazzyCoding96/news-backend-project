@@ -30,12 +30,21 @@ exports.fetchAllArticles = () => {
     });
 };
 
-/*
-In addition:
-
--the articles should be sorted by date in descending order.
--there should not be a body property present on any of the article objects.
-Consider what errors could occur with this endpoint, and make sure to test for them.
-
-Remember to add a description of this endpoint to your /api endpoint.*/
+exports.commentsByArticleId = (article_id) => {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`,
+      [article_id]
+    )
+    .then((result) => {
+      if (!result.rows[0]) {
+        return Promise.reject({
+          status: 404,
+          msg: `Article does not exist`,
+        });
+      }
+      return result.rows;
+    });
+};
+/**/
 
