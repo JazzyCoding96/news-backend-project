@@ -1,15 +1,21 @@
-const { selectArticleById, fetchAllArticles, commentsByArticleId, insertComment } = require("../models/article")
-
+const {
+  selectArticleById,
+  fetchAllArticles,
+  commentsByArticleId,
+  insertComment,
+  updateArticle,
+} = require("../models/article");
 
 exports.getArticleById = (req, res, next) => {
-    
-    const { article_id } = req.params;
-    selectArticleById(article_id).then((article) => {
-        res.status(200).send({ article })
-    }).catch((err) => {
-        next(err)
+  const { article_id } = req.params;
+  selectArticleById(article_id)
+    .then((article) => {
+      res.status(200).send({ article });
     })
-}
+    .catch((err) => {
+      next(err);
+    });
+};
 
 exports.getAllArticles = (req, res, next) => {
   fetchAllArticles().then((articles) => {
@@ -39,4 +45,17 @@ exports.addComment = (req, res, next) => {
       res.status(201).send({ comment });
     })
     .catch((err) => next(err));
+};
+
+exports.patchArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  updateArticle(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ updatedArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

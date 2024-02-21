@@ -3,7 +3,8 @@ const app = require("./app");
 const seed = require("./db/seeds/seed");
 const db = require("./db/connection");
 const testData = require("./db/data/test-data/index");
-const fs = require('fs/promises')
+const fs = require('fs/promises');
+const { log } = require('console');
 
 beforeEach(() => {
   return seed(testData);
@@ -148,6 +149,9 @@ describe("POST /api/articles/:article_id/comments", () => {
           newComment.username
         );
         expect(response.body.comment).toHaveProperty("body", newComment.body);
+        expect(response.body.comment).toHaveProperty("votes")
+        expect(response.body.comment).toHaveProperty("created_at")
+        
       });
   });
   test("should respond with a 400 if either username or body are empty values", () => {
@@ -181,10 +185,51 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("PATCH /api/articles/:article_id", () => {
+  test("should increment votes on specific article by requested number", () => {
+    const patchRequest = { inc_votes: 1 };
 
-/*POST /api/articles/:article_id/comments
-Consider what errors could occur with this endpoint, and make sure to test for them.
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchRequest)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.updatedArticle[0].votes).toBe(101);
+        expect(response.body.updatedArticle[0]).toEqual({
+            article_id: 1,
+            title: 'Living in the shadow of a great man',
+            topic: 'mitch',
+            author: 'butter_bridge',
+            body: 'I find this existence challenging',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 101,
+            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+          })
+      });
+  });
+  test("should return a 400 psql error if incorrect data type inputted into the inc_votes property", () => {
+    const patchRequest = { inc_votes: "invalid data" };
 
-Remember to add a description of this endpoint to your /api endpoint.
-*/
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchRequest)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
+      });
+  });
+  test("should return a custom error message if votes is valid data type but article does not exist", () => {
+    const patchRequest = { inc_votes: 1 };
+
+    return request(app)
+      .patch("/api/articles/9999")
+      .send(patchRequest)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article does not exist");
+      });
+  });
+});
+
+/**/
 

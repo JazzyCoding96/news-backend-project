@@ -72,21 +72,41 @@ exports.insertComment = (article_id, body, username) => {
     });
 };
 
-/*POST /api/articles/:article_id/comments
+exports.updateArticle = (article_id, votes) => {
+  return db
+    .query(
+      `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`,
+      [votes, article_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Article does not exist`,
+        });
+      }
+      return result.rows;
+    });
+};
+
+
+
+
+/*PATCH /api/articles/:article_id
 Description
 Should:
 
--be available on /api/articles/:article_id/comments.
--add a comment for an article.
+-be available on /api/articles/:article_id.
+-update an article by article_id.
 Request body accepts:
 
-an object with the following properties:
--username
--body
+-an object in the form { inc_votes: newVote }.
+-newVote will indicate how much the votes property in the database should be updated by, e.g.
+{ inc_votes : 1 } would increment the current article's vote property by 1
+{ inc_votes : -100 } would decrement the current article's vote property by 100
 Responds with:
 
--the posted comment.
-
+-the updated article
 Consider what errors could occur with this endpoint, and make sure to test for them.
 
 Remember to add a description of this endpoint to your /api endpoint.*/
