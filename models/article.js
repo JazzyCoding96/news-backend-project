@@ -2,7 +2,7 @@ const db = require("../db/connection")
 
 exports.selectArticleById = (article_id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
+    .query(`SELECT articles.*, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`, [article_id])
     .then((result) => {
       if (!result.rows[0]) {
         return Promise.reject({
@@ -15,38 +15,35 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.fetchAllArticles = (query) => {
-  let columnName 
-  let category 
-  const queryVals = []
-  
-  let sqlString = `SELECT articles.article_id, articles.author, title, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`
-  
-  if(query){
-    columnName = Object.keys(query)[0]
-    category = query[columnName]
+  let columnName;
+  let category;
+  const queryVals = [];
+
+  let sqlString = `SELECT articles.article_id, articles.author, title, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`;
+
+  if (query) {
+    columnName = Object.keys(query)[0];
+    category = query[columnName];
 
     sqlString += ` WHERE ${columnName} = $1`;
     queryVals.push(category);
   }
-  sqlString += ` GROUP BY articles.article_id ORDER BY created_at DESC`
+  sqlString += ` GROUP BY articles.article_id ORDER BY created_at DESC`;
 
-
-  return db
-    .query(sqlString, queryVals)
-    .then((result) => {
-      if (result.rows.length === 0){
-        return Promise.reject({
-          status: 400,
-          msg: "Not found"
-        })
-      }
-      return result.rows;
-    })
+  return db.query(sqlString, queryVals).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "Not found",
+      });
+    }
+    return result.rows;
+  });
 };
 
 exports.commentsByArticleId = (article_id) => {
     const regex = /^\d+$/
-    if (regex.test(article_id) === false) {
+    if (!regex.test(article_id)) {
 
       return Promise.reject({
         status: 400,
@@ -62,7 +59,7 @@ exports.commentsByArticleId = (article_id) => {
     ]).then(([article, comment]) => {
       if (article.rows.length === 0) {
         return Promise.reject({
-          status: 400,
+          status: 404,
           msg: `Article does not exist`,
         });
       }
@@ -114,19 +111,11 @@ exports.updateArticle = (article_id, votes) => {
 
 
 
-/*GET /api/articles (topic query)
+/*GET /api/articles/:article_id (comment_count)
 Description
-FEATURE REQUEST The endpoint should also accept the following query:
+FEATURE REQUEST An article response object should also now include:
 
---topic, which filters the articles by the topic value specified in the query. If the query is omitted, the endpoint should respond with all articles.
-
-
-Consider what errors could occur with this endpoint, and make sure to test for them.
-You should not have to amend any previous tests.GET /api/articles (topic query)
-Description
-FEATURE REQUEST The endpoint should also accept the following query:
-
---topic, which filters the articles by the topic value specified in the query. If the query is omitted, the endpoint should respond with all articles.
+comment_count, which is the total count of all the comments with this article_id. You should make use of queries to the database in order to achieve this
 
 
 Consider what errors could occur with this endpoint, and make sure to test for them.
