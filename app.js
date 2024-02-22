@@ -50,4 +50,6 @@ app.use((err, req, res, next) => {
 
 module.exports = app;
 
-/**/
+/*
+
+Remember to add a description of this endpoint to your /api endpoint.*/

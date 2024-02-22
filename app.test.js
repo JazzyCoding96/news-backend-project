@@ -276,6 +276,43 @@ describe("GET/api/users", () => {
     return request(app).get("/api/useeeers").expect(404);
   });
 });
-/*
-*/
+describe("GET /api/articles (topic query)", () => {
+  test("should filter articles by topic value ", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+
+        response.body.filteredArticles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("should respond with all articles if query is omitted ", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles.length).toBe(13);
+      });
+  });
+  test('should return a 404 if query is invalid ', () => {
+    return request(app)
+      .get("/api/articles?invalid342=mitch")
+      .expect(404).then((response) => {
+        expect(response.body.msg).toBe("Invalid query");
+      })
+  });
+  test('should return a 400 if query is valid but query value does not exist', () => {
+    return request(app)
+      .get("/api/articles?topic=notHere")
+      .expect(400).then((response) => {
+        expect(response.body.msg).toBe("Not found");
+      })
+  });
+});
+/*#
+You should not have to amend any previous tests.
+
+Remember to add a description of this endpoint to your /api endpoint.*/
 

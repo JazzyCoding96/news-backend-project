@@ -14,14 +14,34 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.fetchAllArticles = () => {
+exports.fetchAllArticles = (query) => {
+  let columnName 
+  let category 
+  const queryVals = []
+  
+  let sqlString = `SELECT articles.article_id, articles.author, title, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`
+  
+  if(query){
+    columnName = Object.keys(query)[0]
+    category = query[columnName]
+
+    sqlString += ` WHERE ${columnName} = $1`;
+    queryVals.push(category);
+  }
+  sqlString += ` GROUP BY articles.article_id ORDER BY created_at DESC`
+
+
   return db
-    .query(
-      `SELECT articles.article_id, articles.author, title, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;`
-    )
+    .query(sqlString, queryVals)
     .then((result) => {
+      if (result.rows.length === 0){
+        return Promise.reject({
+          status: 400,
+          msg: "Not found"
+        })
+      }
       return result.rows;
-    });
+    })
 };
 
 exports.commentsByArticleId = (article_id) => {
@@ -92,22 +112,23 @@ exports.updateArticle = (article_id, votes) => {
 
 
 
-/*PATCH /api/articles/:article_id
+
+
+/*GET /api/articles (topic query)
 Description
-Should:
+FEATURE REQUEST The endpoint should also accept the following query:
 
--be available on /api/articles/:article_id.
--update an article by article_id.
-Request body accepts:
+--topic, which filters the articles by the topic value specified in the query. If the query is omitted, the endpoint should respond with all articles.
 
--an object in the form { inc_votes: newVote }.
--newVote will indicate how much the votes property in the database should be updated by, e.g.
-{ inc_votes : 1 } would increment the current article's vote property by 1
-{ inc_votes : -100 } would decrement the current article's vote property by 100
-Responds with:
 
--the updated article
 Consider what errors could occur with this endpoint, and make sure to test for them.
+You should not have to amend any previous tests.GET /api/articles (topic query)
+Description
+FEATURE REQUEST The endpoint should also accept the following query:
 
-Remember to add a description of this endpoint to your /api endpoint.*/
+--topic, which filters the articles by the topic value specified in the query. If the query is omitted, the endpoint should respond with all articles.
+
+
+Consider what errors could occur with this endpoint, and make sure to test for them.
+You should not have to amend any previous tests.*/
 

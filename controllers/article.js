@@ -18,9 +18,27 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  fetchAllArticles().then((articles) => {
-    res.status(200).send({ articles });
-  });
+  const validQueries = ["author", "topic"];
+  const query = req.query;
+  const hasKey = Object.keys(query).some((value) =>
+    validQueries.includes(value)
+  );
+
+  if (query && hasKey) {
+    fetchAllArticles(query)
+      .then((filteredArticles) => {
+        res.status(200).send({ filteredArticles });
+      })
+      .catch((err) => next(err));
+  } else if (Object.keys(query).length === 0) {
+    fetchAllArticles()
+      .then((articles) => {
+        res.status(200).send({ articles });
+      })
+      .catch((err) => next(err));
+  } else {
+    res.status(404).send({ msg: "Invalid query" });
+  }
 };
 
 exports.getAllComments = (req, res, next) => {
