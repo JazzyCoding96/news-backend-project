@@ -196,15 +196,16 @@ describe("PATCH /api/articles/:article_id", () => {
       .then((response) => {
         expect(response.body.updatedArticle[0].votes).toBe(101);
         expect(response.body.updatedArticle[0]).toEqual({
-            article_id: 1,
-            title: 'Living in the shadow of a great man',
-            topic: 'mitch',
-            author: 'butter_bridge',
-            body: 'I find this existence challenging',
-            created_at: '2020-07-09T20:11:00.000Z',
-            votes: 101,
-            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
-          })
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 101,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
       });
   });
   test("should return a 400 psql error if incorrect data type inputted into the inc_votes property", () => {
@@ -229,7 +230,47 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(response.body.msg).toBe("Article does not exist");
       });
   });
-});
+  test("should return a 400 if article_id is invalid data type", () => {
+    const patchRequest = { inc_votes: 1 };
 
-/**/
+    return request(app)
+      .patch("/api/articles/invalid_data")
+      .send(patchRequest)
+      .expect(400)
+  });
+});
+describe("DELETE /api/comments/:comment_id", () => {
+  test("should respond with a status code 204 if comment successfully deleted", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204);
+  });
+  test("should respond with a status code 404 if comment_id does not exist", () => {
+    return request(app)
+      .delete("/api/comments/99999")
+      .expect(404).then((response) => {
+        expect(response.body.msg).toBe('Comment does not exist')
+      })
+  })
+  test("should respond with a status code 400 if comment_id is an invalid data type", () => {
+    return request(app)
+      .delete("/api/comments/invalidData")
+      .expect(400).then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+  })
+
+});
+/*DELETE /api/comments/:comment_id
+Description
+Should:
+
+be available on /api/comments/:comment_id.
+delete the given comment by comment_id.
+Responds with:
+
+status 204 and no content.
+Consider what errors could occur with this endpoint, and make sure to test for them.
+
+Remember to add a description of this endpoint to your /api endpoin*/
 
