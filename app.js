@@ -9,6 +9,7 @@ const {
   patchArticle,
 } = require("./controllers/article");
 const { deleteComment } = require("./controllers/comment");
+const { getAllUsers } = require("./controllers/users");
 const app = express();
 
 app.use(express.json());
@@ -29,6 +30,8 @@ app.patch("/api/articles/:article_id", patchArticle);
 
 app.delete("/api/comments/:comment_id", deleteComment)
 
+app.get("/api/users", getAllUsers)
+
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
@@ -47,15 +50,4 @@ app.use((err, req, res, next) => {
 
 module.exports = app;
 
-/*DELETE /api/comments/:comment_id
-Description
-Should:
-
-be available on /api/comments/:comment_id.
-delete the given comment by comment_id.
-Responds with:
-
-status 204 and no content.
-Consider what errors could occur with this endpoint, and make sure to test for them.
-
-Remember to add a description of this endpoint to your /api endpoint.*/
+/**/
