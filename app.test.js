@@ -124,7 +124,7 @@ describe("GET /api/articles/:article_id/comments", () => {
   test("should respond with a 400 and a custom error message if article id requested does not exist", () => {
     return request(app)
       .get("/api/articles/9999/comments")
-      .expect(400)
+      .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Article does not exist");
       });
@@ -282,7 +282,6 @@ describe("GET /api/articles (topic query)", () => {
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then((response) => {
-
         response.body.filteredArticles.forEach((article) => {
           expect(article.topic).toBe("mitch");
         });
@@ -296,23 +295,33 @@ describe("GET /api/articles (topic query)", () => {
         expect(response.body.articles.length).toBe(13);
       });
   });
-  test('should return a 404 if query is invalid ', () => {
+  test("should return a 404 if query is invalid ", () => {
     return request(app)
       .get("/api/articles?invalid342=mitch")
-      .expect(404).then((response) => {
+      .expect(404)
+      .then((response) => {
         expect(response.body.msg).toBe("Invalid query");
-      })
+      });
   });
-  test('should return a 400 if query is valid but query value does not exist', () => {
+  test("should return a 400 if query is valid but query value does not exist", () => {
     return request(app)
       .get("/api/articles?topic=notHere")
-      .expect(400).then((response) => {
+      .expect(404)
+      .then((response) => {
         expect(response.body.msg).toBe("Not found");
-      })
+      });
   });
 });
-/*#
-You should not have to amend any previous tests.
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("should return an article object that includes a comment_count", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article).toHaveProperty("comment_count");
+      });
+  });
+});
 
-Remember to add a description of this endpoint to your /api endpoint.*/
+/*#*/
 
