@@ -82,7 +82,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then((response) => {
-        
+        expect(response.body.articles.length).toBe(13);
         response.body.articles.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
@@ -241,36 +241,41 @@ describe("PATCH /api/articles/:article_id", () => {
 });
 describe("DELETE /api/comments/:comment_id", () => {
   test("should respond with a status code 204 if comment successfully deleted", () => {
-    return request(app)
-      .delete("/api/comments/1")
-      .expect(204);
+    return request(app).delete("/api/comments/1").expect(204);
   });
   test("should respond with a status code 404 if comment_id does not exist", () => {
     return request(app)
       .delete("/api/comments/99999")
-      .expect(404).then((response) => {
-        expect(response.body.msg).toBe('Comment does not exist')
-      })
-  })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment does not exist");
+      });
+  });
   test("should respond with a status code 400 if comment_id is an invalid data type", () => {
     return request(app)
       .delete("/api/comments/invalidData")
-      .expect(400).then((response) => {
-        expect(response.body.msg).toBe('Bad request')
-      })
-  })
-
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
+      });
+  });
 });
-/*DELETE /api/comments/:comment_id
-Description
-Should:
-
-be available on /api/comments/:comment_id.
-delete the given comment by comment_id.
-Responds with:
-
-status 204 and no content.
-Consider what errors could occur with this endpoint, and make sure to test for them.
-
-Remember to add a description of this endpoint to your /api endpoin*/
+describe("GET/api/users", () => {
+  test("should respond with an array of objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.users.length).toBe(4);
+        expect(response.body.users[0]).toHaveProperty("username");
+        expect(response.body.users[0]).toHaveProperty("name");
+        expect(response.body.users[0]).toHaveProperty("avatar_url");
+      });
+  });
+  test("should respond with an error 404 if endpoint does not exist", () => {
+    return request(app).get("/api/useeeers").expect(404);
+  });
+});
+/*
+*/
 
