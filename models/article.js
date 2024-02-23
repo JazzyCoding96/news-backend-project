@@ -108,16 +108,3 @@ exports.updateArticle = (article_id, votes) => {
 
 
 
-
-
-
-/*GET /api/articles/:article_id (comment_count)
-Description
-FEATURE REQUEST An article response object should also now include:
-
-comment_count, which is the total count of all the comments with this article_id. You should make use of queries to the database in order to achieve this
-
-
-Consider what errors could occur with this endpoint, and make sure to test for them.
-You should not have to amend any previous tests.*/
-
