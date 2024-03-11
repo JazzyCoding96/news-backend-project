@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const { getAllTopics } = require("./controllers/topics");
 const { getEndpoints } = require("./controllers/endpoint");
 const {
@@ -10,7 +11,10 @@ const {
 } = require("./controllers/article");
 const { deleteComment } = require("./controllers/comment");
 const { getAllUsers } = require("./controllers/users");
+
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -28,9 +32,9 @@ app.post("/api/articles/:article_id/comments", addComment);
 
 app.patch("/api/articles/:article_id", patchArticle);
 
-app.delete("/api/comments/:comment_id", deleteComment)
+app.delete("/api/comments/:comment_id", deleteComment);
 
-app.get("/api/users", getAllUsers)
+app.get("/api/users", getAllUsers);
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
