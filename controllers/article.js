@@ -23,8 +23,9 @@ exports.getAllArticles = (req, res, next) => {
   const hasKey = Object.keys(query).some((value) =>
     validQueries.includes(value)
   );
-
+  
   if (query && hasKey) {
+  
     fetchAllArticles(query)
       .then((filteredArticles) => {
         res.status(200).send({ filteredArticles });

@@ -47,5 +47,7 @@ Do the same for test database: Add .env.test file and "```PGDATABASE=nc_news_tes
 
 ## Versions of Node and Postgres
 Minimum versions required to run the project:
+
 Node v20.0.0
+
 PostgreSQL 14.10

@@ -322,5 +322,16 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
   });
 });
 
-/*#*/
 
+
+/*GET /api/articles (sorting queries)
+Description
+FEATURE REQUEST The endpoint should also accept the following queries:
+
+--sort_by, which sorts the articles by any valid column (defaults to the created_at date).
+--order, which can be set to asc or desc for ascending or descending (defaults to descending).
+
+Consider what errors could occur with this endpoint, and make sure to test for them.
+You should not have to amend any previous tests.
+
+Remember to add a description of this endpoint to your /api endpoint.*/
