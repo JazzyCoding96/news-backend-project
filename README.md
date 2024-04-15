@@ -1,4 +1,4 @@
-# Northcoders News API
+# News API
 For developers
 
 ## Hosted version
